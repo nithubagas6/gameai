@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GameAI</string>
+    <string name="app_subtitle">AI游戏自动化助手</string>
+    <string name="label_api_url">API地址</string>
+    <string name="label_api_key">API密钥</string>
+    <string name="label_model">模型名称</string>
+    <string name="label_goal">游戏目标</string>
+    <string name="label_usage">使用说明</string>
+    <string name="hint_api_url">https://api.deepseek.com/v1</string>
+    <string name="hint_api_key">输入你的API Key</string>
+    <string name="hint_model">deepseek-chat</string>
+    <string name="hint_goal">描述你想要AI完成的游戏目标</string>
+    <string name="btn_start">启动AI</string>
+    <string name="btn_stop">停止AI</string>
+    <string name="btn_overlay">悬浮窗权限</string>
+    <string name="btn_accessibility">无障碍服务</string>
+    <string name="status_idle">状态: 待机</string>
+    <string name="status_running">状态: 运行中</string>
+    <string name="status_stopped">状态: 已停止</string>
+    <string name="notification_text">AI游戏助手正在运行</string>
+    <string name="usage_guide">1. 输入API地址和密钥\n2. 设置游戏目标\n3. 点击\"悬浮窗权限\"授予权限\n4. 点击\"无障碍服务\"开启\n5. 点击\"启动AI\"开始\n6. 点击悬浮AI按钮控制</string>
 </resources>
