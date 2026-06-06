@@ -24,12 +24,33 @@ jobs:
 
     - name: Build Debug APK
       working-directory: android
-      run: |
-        gradle assembleDebug --stacktrace --info 2>&1 || true
+      run: gradle assembleDebug
 
     - name: Upload APK artifact
-      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: gameai-debug-apk
         path: android/app/build/outputs/apk/debug/*.apk
+
+    - name: Create Release
+      if: success()
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.0
+        name: GameAI v1.0.0
+        body: |
+          ## GameAI Android APK
+          
+          ### 安装说明
+          1. 下载 app-debug.apk
+          2. 在手机上打开安装
+          3. 授予必要权限
+          
+          ### 功能
+          - AI自动游戏操作
+          - 支持API和本地模式
+          - OCR识别游戏画面
+          - 触屏操作（点击、滑动等）
+        files: android/app/build/outputs/apk/debug/*.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
