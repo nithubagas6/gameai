@@ -30,6 +30,7 @@ jobs:
       with:
         name: gameai-debug-apk
         path: android/app/build/outputs/apk/debug/*.apk
+        retention-days: 30
 
     - name: Create Release
       if: success()
@@ -39,7 +40,7 @@ jobs:
         name: GameAI v1.0.0
         body: |
           ## GameAI Android APK
-          下载 app-debug.apk 安装使用
+          Download app-debug.apk to install and use.
         files: android/app/build/outputs/apk/debug/*.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
