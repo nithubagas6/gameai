@@ -1,0 +1,61 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+
+    - name: Build Debug APK
+      working-directory: android
+      run: |
+        ./gradlew assembleDebug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gameai-debug-apk
+        path: android/app/build/outputs/apk/debug/*.apk
+        retention-days: 30
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: android/app/build/outputs/apk/debug/*.apk
+        tag_name: v1.0.0
+        name: GameAI v1.0.0
+        body: |
+          ## GameAI Android APK
+          
+          ### 安装说明
+          1. 下载 APK 文件
+          2. 在手机上打开安装
+          3. 授予必要权限（悬浮窗、无障碍）
+          
+          ### 功能
+          - AI自动游戏操作
+          - 支持API和本地模式
+          - OCR识别游戏画面
+          - 触屏操作（点击、滑动、长按等）
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
