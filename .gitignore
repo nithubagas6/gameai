@@ -50,3 +50,25 @@ run_*.txt
 # Temporary files
 *.tmp
 *.bak
+
+# Android
+android/.gradle/
+android/.idea/
+android/local.properties
+android/app/build/
+
+# Temp scripts (keep repo clean)
+temp_*.py
+temp_*.java
+temp_*.gradle
+temp_*.yml
+fix_*.py
+check_*.py
+get_*.py
+find_*.py
+print_*.py
+create_*.py
+upload_*.py
+retry_*.py
+trigger.py
+build_log.txt
