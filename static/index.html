@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameAI Console</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🎮</span>
+                <h1>GameAI Console</h1>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="btn btn-icon" title="切换主题">🌙</button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 左侧：配置和输入 -->
+            <aside class="sidebar">
+                <!-- API配置面板 -->
+                <section class="panel config-panel">
+                    <h2 class="panel-title">⚙️ API 配置</h2>
+                    <div class="form-group">
+                        <label for="provider">API 提供方</label>
+                        <select id="provider">
+                            <option value="custom" selected>自定义</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="mimo">Mimo (小米)</option>
+                            <option value="siliconflow">硅基流动</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="zhipu">智谱AI</option>
+                            <option value="moonshot">月之暗面</option>
+                            <option value="baichuan">百川智能</option>
+                            <option value="qwen">通义千问</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="baseUrl">API Base URL</label>
+                        <input type="url" id="baseUrl" placeholder="https://api.example.com/v1" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <div class="input-with-action">
+                            <input type="password" id="apiKey" placeholder="sk-...">
+                            <button id="toggleKeyVisibility" class="btn btn-sm" title="显示/隐藏">👁️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">模型</label>
+                        <div class="input-with-action">
+                            <select id="model">
+                                <option value="">请先获取模型列表</option>
+                            </select>
+                            <button id="fetchModels" class="btn btn-sm" title="获取模型列表">🔄</button>
+                        </div>
+                    </div>
+                    <button id="testConnection" class="btn btn-primary btn-full">
+                        <span class="btn-text">测试连接</span>
+                        <span class="btn-loader hidden">⏳</span>
+                    </button>
+                    <div id="connectionStatus" class="status-message hidden"></div>
+                </section>
+
+                <!-- 目标输入 -->
+                <section class="panel input-panel">
+                    <h2 class="panel-title">🎯 游戏目标</h2>
+                    <div class="form-group">
+                        <label for="goal">目标描述</label>
+                        <textarea id="goal" rows="3" placeholder="输入你想要完成的目标...&#10;例如：打开宝箱、击败所有怪物、到达出口"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxSteps">最大步数</label>
+                        <input type="number" id="maxSteps" value="10" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>游戏截图（用于OCR识别）</label>
+                        <div class="screenshot-upload">
+                            <input type="file" id="screenshotInput" accept="image/*" class="hidden">
+                            <button id="uploadScreenshot" class="btn btn-sm btn-full">
+                                📷 上传截图
+                            </button>
+                            <div id="screenshotPreview" class="screenshot-preview hidden">
+                                <img id="previewImage" src="" alt="预览">
+                                <button id="clearScreenshot" class="btn btn-sm btn-danger">清除</button>
+                            </div>
+                            <div id="ocrResult" class="ocr-result hidden">
+                                <label>OCR识别结果：</label>
+                                <pre id="ocrText"></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="gameState">游戏状态描述（可选，截图优先）</label>
+                        <textarea id="gameState" rows="2" placeholder="如果没有截图，可以手动描述游戏画面..."></textarea>
+                    </div>
+                    <button id="startGoal" class="btn btn-accent btn-full">
+                        <span class="btn-text">开始执行</span>
+                        <span class="btn-loader hidden">⏳</span>
+                    </button>
+                    <button id="stopGoal" class="btn btn-danger btn-full hidden">
+                        <span class="btn-text">停止执行</span>
+                    </button>
+                    <div id="goalProgress" class="goal-progress hidden">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <span id="progressText">进度: 0/10</span>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- 右侧：输出和经验 -->
+            <div class="content-area">
+                <!-- AI决策输出 -->
+                <section class="panel output-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">🤖 AI 决策</h2>
+                        <div class="panel-actions">
+                            <button id="clearOutput" class="btn btn-sm" title="清空">🗑️</button>
+                        </div>
+                    </div>
+                    <div id="decisionOutput" class="decision-output">
+                        <div class="placeholder-text">等待场景输入...</div>
+                    </div>
+                    <div id="rawOutput" class="raw-output hidden">
+                        <pre><code id="rawJson"></code></pre>
+                    </div>
+                    <div class="output-actions">
+                        <button id="toggleRaw" class="btn btn-sm">查看原始JSON</button>
+                    </div>
+                </section>
+
+                <!-- 经验库 -->
+                <section class="panel experience-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">📚 经验库</h2>
+                        <div class="panel-actions">
+                            <button id="summarizeBtn" class="btn btn-sm btn-accent">总结经验</button>
+                            <button id="exportBtn" class="btn btn-sm">导出</button>
+                        </div>
+                    </div>
+                    <div id="experienceList" class="experience-list">
+                        <div class="placeholder-text">暂无经验记录</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- 底部状态栏 -->
+        <footer class="footer">
+            <div class="status-bar">
+                <span id="statusText">就绪</span>
+                <span id="requestCount">请求次数: 0</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 历史记录模态框 -->
+    <div id="historyModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>历史记录</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
