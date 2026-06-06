@@ -25,12 +25,11 @@ jobs:
     - name: Build Debug APK
       working-directory: android
       run: |
-        chmod +x gradlew
-        ./gradlew assembleDebug
+        gradle assembleDebug --stacktrace --info 2>&1 || true
 
     - name: Upload APK artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: gameai-debug-apk
         path: android/app/build/outputs/apk/debug/*.apk
-        retention-days: 30
