@@ -9,16 +9,23 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    private EditText etApiUrl, etApiKey, etModel, etGoal;
+    private EditText etApiUrl, etApiKey, etModel, etGoal, etLocalServerUrl;
+    private RadioGroup rgMode;
+    private RadioButton rbModeApi, rbModeLocal;
+    private LinearLayout llApiFields, llLocalFields;
     private Button btnStart, btnOverlay, btnAccessibility;
     private TextView tvStatus, tvLog;
     private SharedPreferences prefs;
     private boolean isServiceRunning = false;
+    private boolean isLocalMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,12 @@ public class MainActivity extends Activity {
         etApiKey = findViewById(R.id.et_api_key);
         etModel = findViewById(R.id.et_model);
         etGoal = findViewById(R.id.et_goal);
+        etLocalServerUrl = findViewById(R.id.et_local_server_url);
+        rgMode = findViewById(R.id.rg_mode);
+        rbModeApi = findViewById(R.id.rb_mode_api);
+        rbModeLocal = findViewById(R.id.rb_mode_local);
+        llApiFields = findViewById(R.id.ll_api_fields);
+        llLocalFields = findViewById(R.id.ll_local_fields);
         btnStart = findViewById(R.id.btn_start);
         btnOverlay = findViewById(R.id.btn_overlay);
         btnAccessibility = findViewById(R.id.btn_accessibility);
@@ -38,10 +51,16 @@ public class MainActivity extends Activity {
         tvLog = findViewById(R.id.tv_log);
 
         loadSettings();
+        updateModeVisibility();
 
         btnStart.setOnClickListener(v -> toggleService());
         btnOverlay.setOnClickListener(v -> requestOverlayPermission());
         btnAccessibility.setOnClickListener(v -> openAccessibilitySettings());
+
+        rgMode.setOnCheckedChangeListener((group, checkedId) -> {
+            isLocalMode = (checkedId == R.id.rb_mode_local);
+            updateModeVisibility();
+        });
     }
 
     @Override
@@ -55,6 +74,14 @@ public class MainActivity extends Activity {
         etApiKey.setText(prefs.getString("api_key", ""));
         etModel.setText(prefs.getString("model", "deepseek-chat"));
         etGoal.setText(prefs.getString("goal", ""));
+        etLocalServerUrl.setText(prefs.getString("local_server_url", "http://192.168.1.100:8080"));
+
+        isLocalMode = prefs.getBoolean("local_mode", false);
+        if (isLocalMode) {
+            rbModeLocal.setChecked(true);
+        } else {
+            rbModeApi.setChecked(true);
+        }
     }
 
     private void saveSettings() {
@@ -63,7 +90,19 @@ public class MainActivity extends Activity {
             .putString("api_key", etApiKey.getText().toString().trim())
             .putString("model", etModel.getText().toString().trim())
             .putString("goal", etGoal.getText().toString().trim())
+            .putString("local_server_url", etLocalServerUrl.getText().toString().trim())
+            .putBoolean("local_mode", isLocalMode)
             .apply();
+    }
+
+    private void updateModeVisibility() {
+        if (isLocalMode) {
+            llApiFields.setVisibility(android.view.View.GONE);
+            llLocalFields.setVisibility(android.view.View.VISIBLE);
+        } else {
+            llApiFields.setVisibility(android.view.View.VISIBLE);
+            llLocalFields.setVisibility(android.view.View.GONE);
+        }
     }
 
     private void toggleService() {
@@ -80,10 +119,32 @@ public class MainActivity extends Activity {
                 Toast.makeText(this, "请先授予悬浮窗权限", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (etApiKey.getText().toString().trim().isEmpty()) {
-                Toast.makeText(this, "请先输入API Key", Toast.LENGTH_SHORT).show();
+
+            String goal = etGoal.getText().toString().trim();
+            if (goal.isEmpty()) {
+                Toast.makeText(this, "请先输入游戏目标", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            if (isLocalMode) {
+                String localUrl = etLocalServerUrl.getText().toString().trim();
+                if (localUrl.isEmpty()) {
+                    Toast.makeText(this, "请输入本地模型服务器地址", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                GameAIEngine.getInstance().configureLocal(localUrl, goal, this);
+            } else {
+                if (etApiKey.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(this, "请先输入API Key", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                GameAIEngine.getInstance().configure(
+                    etApiUrl.getText().toString().trim(),
+                    etApiKey.getText().toString().trim(),
+                    etModel.getText().toString().trim(),
+                    goal, this);
+            }
+
             Intent intent = new Intent(this, FloatingWindowService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
