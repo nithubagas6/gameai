@@ -7,7 +7,7 @@ title Game AI 安装器
 echo.
 echo  ╔══════════════════════════════════════════════════╗
 echo  ║           Game AI - 一键安装程序               ║
-echo  ║     支持 API 版本和本地版本（Qwen2.5-VL）     ║
+echo  ║     支持 API 版本和本地版本（Qwen3.5）       ║
 echo  ╚══════════════════════════════════════════════════╝
 echo.
 
@@ -116,13 +116,13 @@ if %errorlevel% equ 0 (
 ::  步骤4: 预下载 Qwen 模型（可选）
 :: ============================================================
 echo.
-echo [4/5] Qwen2.5-VL-0.5B 模型下载...
-echo       模型约 1GB，首次运行时会自动下载。
+echo [4/5] Qwen3.5-0.8B 模型下载...
+echo       模型约 1.6GB，首次运行时会自动下载。
 echo       是否现在预下载？(Y/N)
 set /p "DOWNLOAD_MODEL="
 if /i "!DOWNLOAD_MODEL!"=="Y" (
     echo       正在下载模型，请耐心等待...
-    !PYTHON_CMD! -c "from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor; print('模型下载完成')" 2>nul
+    !PYTHON_CMD! -c "from transformers import AutoModelForCausalLM, AutoProcessor; AutoModelForCausalLM.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); AutoProcessor.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); print('模型下载完成')" 2>nul
     if %errorlevel% equ 0 (
         echo       模型下载完成
     ) else (
