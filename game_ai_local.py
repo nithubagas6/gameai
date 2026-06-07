@@ -2,7 +2,7 @@
 Game AI - 本地版本
 支持两种模式：
   1. API模式：使用外部API推理，本地Qwen做OCR
-  2. 本地模式：完全使用本地Qwen2.5-VL-0.5B（多模态）进行推理和OCR
+  2. 本地模式：完全使用本地Qwen3.5-0.8B（多模态）进行推理和OCR
 
 设备优先级：NVIDIA GPU > NPU（Intel/昇腾） > CPU
 经验系统：API经验可教学本地模型，本地模型可独立总结经验，经验库共享
@@ -210,11 +210,11 @@ class ExperienceManager:
 
 class QwenLocalModel:
     """
-    本地加载 Qwen2.5-VL-0.5B 多模态模型
+    本地加载 Qwen3.5-0.8B 多模态模型
     自动选择设备：NVIDIA GPU > NPU > CPU
     """
 
-    def __init__(self, model_path: str = "Qwen/Qwen2.5-VL-0.5B-Instruct"):
+    def __init__(self, model_path: str = "Qwen/Qwen3.5-0.8B"):
         self.model_path = model_path
         self._model = None
         self._processor = None
@@ -225,7 +225,7 @@ class QwenLocalModel:
     def _load(self):
         try:
             import torch
-            from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
+            from transformers import AutoModelForImageTextToText, AutoProcessor
 
             self._device_info = detect_device()
             device = self._device_info["device"]
@@ -237,14 +237,14 @@ class QwenLocalModel:
             # 使用device_map="auto"让transformers自动分配设备
             # 对于单GPU/NPU，直接指定device更可控
             if "cuda" in device:
-                self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
                     torch_dtype=dtype,
                     device_map="auto",
                     trust_remote_code=True,
                 )
             elif "npu" in device or "xpu" in device:
-                self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
                     torch_dtype=dtype,
                     trust_remote_code=True,
@@ -252,7 +252,7 @@ class QwenLocalModel:
                 self._model = self._model.to(device)
             else:
                 # CPU: 使用float32以获得兼容性
-                self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
                     torch_dtype=torch.float32,
                     trust_remote_code=True,
@@ -417,7 +417,7 @@ class GameAI_Local:
         api_key: str = "",
         base_url: str = "https://gvmz.systems/v1",
         api_model: str = "gpt-5.4-mini",
-        model_path: str = "Qwen/Qwen2.5-VL-0.5B-Instruct",
+        model_path: str = "Qwen/Qwen3.5-0.8B",
         experience_file: str = "experiences_local.json",
     ):
         self.mode = mode
@@ -638,7 +638,7 @@ def main():
     parser.add_argument("--api-key", default=os.environ.get("OPENAI_API_KEY", ""), help="API Key")
     parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "https://gvmz.systems/v1"), help="API Base URL")
     parser.add_argument("--api-model", default=os.environ.get("MODEL_NAME", "gpt-5.4-mini"), help="API模型名")
-    parser.add_argument("--model-path", default="Qwen/Qwen2.5-VL-0.5B-Instruct", help="本地模型路径")
+    parser.add_argument("--model-path", default="Qwen/Qwen3.5-0.8B", help="本地模型路径")
     parser.add_argument("--teach", action="store_true", help="执行API经验教学")
     args = parser.parse_args()
 
