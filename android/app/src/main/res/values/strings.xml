@@ -20,4 +20,10 @@
     <string name="status_stopped">状态: 已停止</string>
     <string name="notification_text">AI游戏助手正在运行</string>
     <string name="usage_guide">1. 输入API地址和密钥\n2. 设置游戏目标\n3. 点击\"悬浮窗权限\"授予权限\n4. 点击\"无障碍服务\"开启\n5. 点击\"启动AI\"开始\n6. 点击悬浮AI按钮控制</string>
+    <string name="label_mode">运行模式</string>
+    <string name="mode_api">API模式</string>
+    <string name="mode_local">本地模型</string>
+    <string name="label_local_server_url">本地模型服务器地址</string>
+    <string name="hint_local_server_url">http://192.168.1.100:8080</string>
+    <string name="usage_guide_local">本地模式说明：\n1. 在PC上启动llama.cpp服务器\n   命令: llama-server -m Qwen3.5-0.8B.gguf\n2. 确保手机和PC在同一局域网\n3. 输入PC的IP地址和端口\n4. 设置游戏目标后点击\"启动AI\"\n5. 本地模型使用Qwen3.5-0.8B</string>
 </resources>
