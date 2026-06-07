@@ -7,7 +7,7 @@
 ![GitHub Stars](https://img.shields.io/github/stars/nithubagas6/gameai?style=social)
 ![GitHub Forks](https://img.shields.io/github/forks/nithubagas6/gameai?style=social)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/Python-3.8%2B-yellow?style=flat-square&logo=python)
+![Python](https://img.shields.io/badge/Python-3.10%2B-yellow?style=flat-square&logo=python)
 ![Android](https://img.shields.io/badge/Android-8.0%2B-green?style=flat-square&logo=android)
 
 **让AI帮你玩游戏 - 输入目标，自动完成**
@@ -234,11 +234,11 @@ export MODEL_NAME="deepseek-chat"
 ### 本地模式依赖
 
 ```bash
-# 安装PyTorch（CUDA版本）
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# 安装 PyTorch（CUDA 12.4 版本，需要 Python 3.10+）
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
-# 安装transformers
-pip install transformers accelerate
+# 安装 transformers 5.2.x（Qwen3.5 官方推荐）
+pip install "transformers>=5.2.0,<5.3.0" accelerate Pillow "qwen-vl-utils>=0.0.14"
 ```
 
 ### 本地模型服务器（llama.cpp）
