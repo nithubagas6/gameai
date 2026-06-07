@@ -32,65 +32,151 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_api_url"
+            android:text="@string/label_mode"
             android:textColor="#cccccc"
             android:textSize="14sp"
             android:layout_marginBottom="4dp" />
 
-        <EditText
-            android:id="@+id/et_api_url"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:inputType="textUri"
-            android:textColor="#ffffff"
-            android:textColorHint="#555555"
-            android:hint="@string/hint_api_url"
-            android:background="#1e1e3a"
-            android:padding="12dp"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp" />
-
-        <TextView
+        <RadioGroup
+            android:id="@+id/rg_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_api_key"
-            android:textColor="#cccccc"
-            android:textSize="14sp"
-            android:layout_marginBottom="4dp" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
 
-        <EditText
-            android:id="@+id/et_api_key"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:inputType="textPassword"
-            android:textColor="#ffffff"
-            android:textColorHint="#555555"
-            android:hint="@string/hint_api_key"
-            android:background="#1e1e3a"
-            android:padding="12dp"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp" />
+            <RadioButton
+                android:id="@+id/rb_mode_api"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="@string/mode_api"
+                android:textColor="#ffffff"
+                android:buttonTint="#e94560"
+                android:checked="true" />
 
-        <TextView
+            <RadioButton
+                android:id="@+id/rb_mode_local"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="@string/mode_local"
+                android:textColor="#ffffff"
+                android:buttonTint="#e94560" />
+        </RadioGroup>
+
+        <!-- API Mode fields -->
+        <LinearLayout
+            android:id="@+id/ll_api_fields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_model"
-            android:textColor="#cccccc"
-            android:textSize="14sp"
-            android:layout_marginBottom="4dp" />
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/et_model"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_api_url"
+                android:textColor="#cccccc"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_api_url"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textUri"
+                android:textColor="#ffffff"
+                android:textColorHint="#555555"
+                android:hint="@string/hint_api_url"
+                android:background="#1e1e3a"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_api_key"
+                android:textColor="#cccccc"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_api_key"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textPassword"
+                android:textColor="#ffffff"
+                android:textColorHint="#555555"
+                android:hint="@string/hint_api_key"
+                android:background="#1e1e3a"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_model"
+                android:textColor="#cccccc"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_model"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="text"
+                android:textColor="#ffffff"
+                android:textColorHint="#555555"
+                android:hint="@string/hint_model"
+                android:background="#1e1e3a"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp" />
+
+        </LinearLayout>
+
+        <!-- Local Mode fields -->
+        <LinearLayout
+            android:id="@+id/ll_local_fields"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:inputType="text"
-            android:textColor="#ffffff"
-            android:textColorHint="#555555"
-            android:hint="@string/hint_model"
-            android:background="#1e1e3a"
-            android:padding="12dp"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_local_server_url"
+                android:textColor="#cccccc"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_local_server_url"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textUri"
+                android:textColor="#ffffff"
+                android:textColorHint="#555555"
+                android:hint="@string/hint_local_server_url"
+                android:background="#1e1e3a"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/usage_guide_local"
+                android:textColor="#aaaaaa"
+                android:textSize="12sp"
+                android:background="#0d0d1a"
+                android:padding="12dp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="12dp" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
