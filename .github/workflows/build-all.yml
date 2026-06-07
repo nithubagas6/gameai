@@ -1,0 +1,144 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build Debug APK
+      working-directory: android
+      run: |
+        chmod +x gradlew
+        for i in 1 2 3; do
+          echo "Attempt $i..."
+          ./gradlew assembleDebug --no-daemon && break
+          echo "Attempt $i failed, retrying..."
+          sleep 10
+        done
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk
+        path: android/app/build/outputs/apk/debug/*.apk
+
+  build-windows:
+    name: Build Windows Version
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller openai pytesseract Pillow easyocr flask requests
+
+    - name: Build API version exe
+      run: |
+        pyinstaller --onefile --name game_ai_api --console --clean --noconfirm --hidden-import openai --hidden-import pytesseract --hidden-import PIL --hidden-import easyocr --hidden-import json --hidden-import re game_ai_api.py
+
+    - name: Build local launcher exe
+      run: |
+        pyinstaller --onefile --name game_ai_local --console --clean --noconfirm --hidden-import json --hidden-import re game_ai_local_launcher.py
+
+    - name: Copy files for packaging
+      run: |
+        mkdir package/dist, package/scripts -Force
+        Copy-Item dist/game_ai_api.exe package/dist/
+        Copy-Item dist/game_ai_local.exe package/dist/
+        Copy-Item game_ai_local.py package/dist/
+        Copy-Item game_ai_api.py package/scripts/
+        Copy-Item game_ai_local.py package/scripts/
+        Copy-Item installer.bat package/
+        Copy-Item requirements_api.txt package/
+        Copy-Item requirements_local.txt package/
+
+    - name: Create ZIP
+      run: |
+        Compress-Archive -Path package/* -DestinationPath GameAI_Setup.zip
+
+    - name: Upload Windows package
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-setup
+        path: GameAI_Setup.zip
+
+  release:
+    name: Create Release
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Android APK
+      uses: actions/download-artifact@v4
+      with:
+        name: android-apk
+        path: artifacts/android
+
+    - name: Download Windows package
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-setup
+        path: artifacts/windows
+
+    - name: Delete old release
+      run: |
+        curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/tags/v1.0.0" || true
+        curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/v1.0.0" || true
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.0
+        name: GameAI v1.0.0
+        body: |
+          ## GameAI v1.0.0
+
+          ### Android APK
+          Download `app-debug.apk` to install on Android devices.
+
+          ### Windows Version
+          Download `GameAI_Setup.zip` for Windows PC.
+          - `game_ai_api.exe` - API version (requires API key)
+          - `game_ai_local.exe` - Local version launcher
+          - Run `installer.bat` for first-time setup
+
+          ### Requirements
+          **Android:**
+          - Android 8.0+ (API 26)
+          - Min 2GB RAM, Recommend 4GB+
+          - Touch screen support
+
+          **Windows:**
+          - Windows 10/11
+          - Python 3.8+ (for local version)
+          - 4GB+ RAM recommended
+        files: |
+          artifacts/android/*.apk
+          artifacts/windows/*.zip
