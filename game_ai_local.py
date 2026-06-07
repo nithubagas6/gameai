@@ -239,14 +239,14 @@ class QwenLocalModel:
             if "cuda" in device:
                 self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
-                    torch_dtype=dtype,
+                    dtype=dtype,
                     device_map="auto",
                     trust_remote_code=True,
                 )
             elif "npu" in device or "xpu" in device:
                 self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
-                    torch_dtype=dtype,
+                    dtype=dtype,
                     trust_remote_code=True,
                 )
                 self._model = self._model.to(device)
@@ -254,7 +254,7 @@ class QwenLocalModel:
                 # CPU: 使用float32以获得兼容性
                 self._model = AutoModelForImageTextToText.from_pretrained(
                     self.model_path,
-                    torch_dtype=torch.float32,
+                    dtype=torch.float32,
                     trust_remote_code=True,
                 )
 
