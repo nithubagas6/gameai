@@ -29,6 +29,8 @@ public class GameAIEngine {
 
     private OkHttpClient client;
     private String apiUrl, apiKey, model, goal;
+    private boolean useLocalModel = false;
+    private String localServerUrl;
     private boolean running = false;
     private Thread workerThread;
     private ExperienceManager experienceManager;
@@ -65,11 +67,29 @@ public class GameAIEngine {
         this.apiKey = apiKey;
         this.model = model;
         this.goal = goal;
+        this.useLocalModel = false;
         this.experienceManager = new ExperienceManager(context);
         this.client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(120, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
+    }
+
+    /**
+     * Configure for local model mode (Qwen3.5-0.8B via llama.cpp server).
+     * The local server exposes an OpenAI-compatible /v1/chat/completions endpoint.
+     */
+    public void configureLocal(String localServerUrl, String goal, Context context) {
+        this.localServerUrl = localServerUrl;
+        this.model = "local";
+        this.goal = goal;
+        this.useLocalModel = true;
+        this.experienceManager = new ExperienceManager(context);
+        this.client = new OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(300, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build();
     }
 
@@ -191,12 +211,22 @@ public class GameAIEngine {
             throw new IOException("JSON构造失败: " + e.getMessage());
         }
 
-        Request request = new Request.Builder()
-            .url(apiUrl + "/chat/completions")
-            .addHeader("Authorization", "Bearer " + apiKey)
+        // Build URL based on mode
+        String requestUrl;
+        Request.Builder requestBuilder = new Request.Builder()
             .addHeader("Content-Type", "application/json")
-            .post(RequestBody.create(body.toString(), MediaType.parse("application/json")))
-            .build();
+            .post(RequestBody.create(body.toString(), MediaType.parse("application/json")));
+
+        if (useLocalModel) {
+            // Local mode: llama.cpp server with OpenAI-compatible API
+            requestUrl = localServerUrl + "/v1/chat/completions";
+        } else {
+            // API mode: external cloud API
+            requestUrl = apiUrl + "/chat/completions";
+            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+        }
+
+        Request request = requestBuilder.url(requestUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
