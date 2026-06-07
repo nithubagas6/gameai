@@ -50,7 +50,7 @@ if %errorlevel% equ 0 (
 echo.
 echo  [警告] 未检测到 Python！
 echo.
-echo  本地版本需要 Python 3.8+ 才能运行。
+echo  本地版本需要 Python 3.10+ 才能运行。
 echo  API版本（game_ai_api.exe）不需要 Python，可直接使用。
 echo.
 set /p "INSTALL_PYTHON=是否自动下载安装 Python 3.11？(Y/N): "
@@ -97,13 +97,14 @@ echo [3/5] 安装本地版本依赖（需要下载较大文件，请耐心等待
 echo       检测 GPU...
 !PYTHON_CMD! -c "import torch; print('CUDA:', torch.cuda.is_available())" >nul 2>nul
 if %errorlevel% neq 0 (
-    echo       安装 PyTorch（CPU版本，如需GPU请手动安装CUDA版）...
-    !PYTHON_CMD! -m pip install torch --index-url https://download.pytorch.org/whl/cpu -q
+    echo       安装 PyTorch（CUDA 12.4版本）...
+    !PYTHON_CMD! -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 -q
 ) else (
     echo       PyTorch 已安装
 )
 
-!PYTHON_CMD! -m pip install transformers accelerate Pillow qwen-vl-utils -q
+echo       安装 transformers 5.2.x（Qwen3.5 官方推荐）...
+!PYTHON_CMD! -m pip install "transformers>=5.2.0,<5.3.0" accelerate Pillow "qwen-vl-utils>=0.0.14" -q
 if %errorlevel% equ 0 (
     echo       本地版本依赖安装完成
 ) else (
@@ -122,7 +123,7 @@ echo       是否现在预下载？(Y/N)
 set /p "DOWNLOAD_MODEL="
 if /i "!DOWNLOAD_MODEL!"=="Y" (
     echo       正在下载模型，请耐心等待...
-    !PYTHON_CMD! -c "from transformers import AutoModelForCausalLM, AutoProcessor; AutoModelForCausalLM.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); AutoProcessor.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); print('模型下载完成')" 2>nul
+    !PYTHON_CMD! -c "from transformers import AutoModelForImageTextToText, AutoProcessor; AutoModelForImageTextToText.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); AutoProcessor.from_pretrained('Qwen/Qwen3.5-0.8B', trust_remote_code=True); print('模型下载完成')" 2>nul
     if %errorlevel% equ 0 (
         echo       模型下载完成
     ) else (
