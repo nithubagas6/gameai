@@ -1,7 +1,8 @@
-# Game AI - 本地版本依赖
+# Game AI - 本地版本依赖（Qwen3.5-0.8B 官方推荐配置）
+# 需要 Python 3.10+
 openai>=1.0.0
-transformers>=4.40.0
-torch>=2.1.0
+transformers>=5.2.0,<5.3.0
+torch>=2.6.0
 accelerate>=0.30.0
 Pillow>=10.0.0
-qwen-vl-utils>=0.0.2
+qwen-vl-utils>=0.0.14
