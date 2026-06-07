@@ -64,6 +64,7 @@ GameAI 是一个智能游戏AI工具，能够：
 | 🧠 经验系统 | ✅ | ✅ |
 | 🤖 API模式 | ✅ | ✅ |
 | 💻 本地模式 | ✅ | ✅ |
+| 🖥️ 本地模型服务器 | ✅ | ✅ |
 
 </div>
 
@@ -102,11 +103,11 @@ python web_server.py
 
 | 配置 | API模式 | 本地模式 |
 |------|---------|----------|
-| **最低配置** | Windows 10/Linux, 4GB RAM, 网络连接 | Windows 10/Linux, 8GB RAM, GTX 1060 6GB |
-| **推荐配置** | Windows 11/Linux, 8GB RAM, 稳定网络 | Windows 11/Linux, 16GB RAM, RTX 3060 12GB |
+| **最低配置** | Windows 10/Linux, 4GB RAM, 网络连接 | Windows 10/Linux, 4GB RAM, 集成显卡 |
+| **推荐配置** | Windows 11/Linux, 8GB RAM, 稳定网络 | Windows 11/Linux, 8GB RAM, GTX 1060 6GB |
 | **NPU加速** | - | Intel NPU / 华为昇腾 NPU |
 | **Python** | 3.8+ | 3.8+ |
-| **磁盘空间** | 500MB | 2GB+（含模型） |
+| **磁盘空间** | 500MB | 2GB+（含模型约1.6GB） |
 
 ### 操作类型（键盘鼠标）
 
@@ -153,8 +154,17 @@ python web_server.py
 | **推荐配置** | Android 12+, 4GB RAM, 5G/WiFi | Android 13+, 8GB RAM, 骁龙8 Gen2 |
 | **芯片要求** | 任意 | 骁龙888+ / 天玑9000+ / 麒麟9000 |
 | **NPU** | 不需要 | Hexagon / APU / Da Vinci |
-| **存储空间** | 100MB | 1GB+（含模型） |
+| **存储空间** | 100MB | 2GB+（含模型约1.6GB） |
 | **权限** | 悬浮窗、截图、无障碍 | 同左 + 存储读写 |
+
+### 本地模型服务器模式（安卓）
+
+安卓版支持连接PC上的本地模型服务器，无需NPU即可使用本地模型：
+
+1. 在PC上启动 llama.cpp 服务器（见下方说明）
+2. 安卓版设置中选择"本地服务器"模式
+3. 输入PC的IP地址和端口（如 `http://192.168.1.100:8080`）
+4. 即可使用本地模型，无需API费用
 
 详细说明请查看 [android/README.md](android/README.md)
 
@@ -230,6 +240,26 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 # 安装transformers
 pip install transformers accelerate
 ```
+
+### 本地模型服务器（llama.cpp）
+
+使用 llama.cpp 部署本地模型服务器，支持 PC 和安卓远程连接：
+
+```bash
+# 1. 下载 llama.cpp
+# 从 https://github.com/ggerganov/llama.cpp/releases 下载最新版本
+
+# 2. 下载 Qwen3.5-0.8B 的 GGUF 格式模型
+# 从 HuggingFace 下载 Qwen3.5-0.8B-Instruct 的 GGUF 文件
+
+# 3. 启动服务器
+./llama-server -m Qwen3.5-0.8B-Instruct.gguf --host 0.0.0.0 --port 8080
+
+# 4. 安卓设备在同一局域网内连接
+# 在安卓版设置中选择"本地服务器"模式，输入 http://<PC-IP>:8080
+```
+
+> **提示**：llama.cpp 支持 CPU 推理，无需 GPU 也可运行，但速度较慢。建议使用 GPU 加速。
 
 ---
 
