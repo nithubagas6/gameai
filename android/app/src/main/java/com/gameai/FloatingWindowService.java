@@ -145,18 +145,30 @@ public class FloatingWindowService extends Service {
         String apiKey = prefs.getString("api_key", "");
         String model = prefs.getString("model", "deepseek-chat");
         String goal = prefs.getString("goal", "");
+        String localServerUrl = prefs.getString("local_server_url", "http://192.168.1.100:8080");
+        boolean localMode = prefs.getBoolean("local_mode", false);
 
-        if (apiKey.isEmpty()) {
-            updateStatus("请先在主界面配置API Key");
-            return;
-        }
         if (goal.isEmpty()) {
             updateStatus("请先在主界面设置游戏目标");
             return;
         }
 
         GameAIEngine engine = GameAIEngine.getInstance();
-        engine.configure(apiUrl, apiKey, model, goal, getApplicationContext());
+
+        if (localMode) {
+            if (localServerUrl.isEmpty()) {
+                updateStatus("请先在主界面配置本地服务器地址");
+                return;
+            }
+            engine.configureLocal(localServerUrl, goal, getApplicationContext());
+        } else {
+            if (apiKey.isEmpty()) {
+                updateStatus("请先在主界面配置API Key");
+                return;
+            }
+            engine.configure(apiUrl, apiKey, model, goal, getApplicationContext());
+        }
+
         engine.start(new GameAIEngine.EngineCallback() {
             @Override
             public void onStatus(String status) {
